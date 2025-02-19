@@ -53,8 +53,9 @@ class EximSiteNodeUnitTest extends TestUtils {
                         + "  responseLength: 1234\n"
                         + "  statusCode: 200\n";
 
-        // When
-        List<?> list = (ArrayList<?>) yaml.load(yamlStr);
+// When
+        String formattedYaml = YamlFormatter.formatYamlString(yamlStr);
+        List<?> list = (ArrayList<?>) yaml.load(formattedYaml);
         EximSiteNode node = new EximSiteNode((LinkedHashMap<?, ?>) list.get(0));
 
         // Then
@@ -95,7 +96,8 @@ class EximSiteNodeUnitTest extends TestUtils {
                         + "      statusCode: 401\n";
 
         // When
-        List<?> list = (ArrayList<?>) yaml.load(yamlStr);
+        String formattedYaml = YamlFormatter.formatYamlString(yamlStr);
+        List<?> list = (ArrayList<?>) yaml.load(formattedYaml);
         EximSiteNode node = new EximSiteNode((LinkedHashMap<?, ?>) list.get(0));
 
         // Then
@@ -143,8 +145,9 @@ class EximSiteNodeUnitTest extends TestUtils {
                         + "  responseLength: nan\n"
                         + "  statusCode: 200\n";
 
-        // When
-        List<?> list = (ArrayList<?>) yaml.load(yamlStr);
+// When
+        String formattedYaml = YamlFormatter.formatYamlString(yamlStr);
+        List<?> list = (ArrayList<?>) yaml.load(formattedYaml);
         EximSiteNode node = new EximSiteNode((LinkedHashMap<?, ?>) list.get(0));
 
         // Then
@@ -178,8 +181,9 @@ class EximSiteNodeUnitTest extends TestUtils {
         LoaderOptions loadingConfig = new LoaderOptions();
         Yaml yaml = new Yaml(loadingConfig);
 
-        // When
-        List<?> list = (ArrayList<?>) yaml.load(yamlStr);
+// When
+        String formattedYaml = YamlFormatter.formatYamlString(yamlStr);
+        List<?> list = (ArrayList<?>) yaml.load(formattedYaml);
         EximSiteNode node = new EximSiteNode((LinkedHashMap<?, ?>) list.get(0));
 
         // Then
@@ -196,5 +200,31 @@ class EximSiteNodeUnitTest extends TestUtils {
         assertThat(
                 node.getErrors().get(1),
                 is(equalTo("Invalid key for node www.example.com: badKey2")));
+    }
+
+    @Test
+    void shouldHandleNodeNamesWithSpacesAndSpecialCharacters() {
+        // Given
+        String yamlStr =
+                "- node: My example of breaking line\n" +
+                        "  second line\n" +
+                        "  url: https://www.example.com\n" +
+                        "  method: GET\n" +
+                        "  responseLength: 1234\n" +
+                        "  statusCode: 200\n";
+
+
+        // When
+        String formattedYaml = YamlFormatter.formatYamlString(yamlStr);
+        List<?> list = (ArrayList<?>) yaml.load(formattedYaml);
+        EximSiteNode node = new EximSiteNode((LinkedHashMap<?, ?>) list.get(0));
+
+        // Then
+        assertThat(node.getNode(), is(equalTo("My example of breaking line  second line")));
+        assertThat(node.getUrl(), is(equalTo("https://www.example.com")));
+        assertThat(node.getMethod(), is(equalTo("GET")));
+        assertThat(node.getResponseLength(), is(equalTo(1234)));
+        assertThat(node.getStatusCode(), is(equalTo(200)));
+        assertThat(node.getErrors().size(), is(equalTo(0)));
     }
 }

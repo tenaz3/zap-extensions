@@ -57,7 +57,7 @@ public class EximSiteNode {
 
     public EximSiteNode() {}
 
-    public EximSiteNode(LinkedHashMap<?, ?> lhm) {
+public EximSiteNode(LinkedHashMap<?, ?> lhm) {
         this(lhm, null);
     }
 
